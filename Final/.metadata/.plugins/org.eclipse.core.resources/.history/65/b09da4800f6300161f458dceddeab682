@@ -1,0 +1,46 @@
+//============================================================================
+// Name        : Test.cpp
+// Author      : 
+// Version     :
+// Copyright   : Your copyright notice
+// Description : Hello World in C++, Ansi-style
+//============================================================================
+
+#include <iostream>
+#include <strings.h>
+#include <string.h>
+#include <map>
+#include <vector>
+#include "MThread.h"
+#include "MultipleTCPSocketListener.h"
+#include "TCPSocket.h"
+#include "Socket.h"
+#include "TCPMessengerProtocol.h"
+#include "UDPSocket.h"
+#include <iostream>
+#include <fstream>
+#include "ClientInfo.h"
+#include "ClientInterface.h"
+#include "ClientManager.h"
+#include "OtherSide.h"
+#include "UDPmessenger.h"
+#include "ChatRoom.h"
+#include "LoginAndRegister.h"
+#include "ServerInfo.h"
+#include "ServerInterface.h"
+#include "ServerManager.h"
+#include "User.h"
+
+using namespace std;
+
+int main() {
+	TCPMessengerServer* msngrServer = new TCPMessengerServer();
+	sleep(2);
+
+	TestMessengerClient* client1=new TestMessengerClient();
+	if(!client1->test())
+		cout << "Test failed!!" << endl;
+	else
+		cout<<"Test succeded!!"<<endl;
+	return 0;
+}

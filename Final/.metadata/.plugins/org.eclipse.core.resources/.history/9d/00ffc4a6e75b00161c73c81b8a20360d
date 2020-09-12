@@ -1,0 +1,74 @@
+/*
+ * Management.cpp
+ *
+ *  Created on: Aug 6, 2016
+ *      Author: user
+ */
+
+#include "Management.h"
+
+namespace npl {
+
+Management::Management() {
+	// TODO Auto-generated constructor stub
+
+}
+
+Management::~Management() {
+	// TODO Auto-generated destructor stub
+}
+
+
+
+int Management::getOrder(string somestr)
+{
+   string lu = "lu";
+	if(somestr.compare(lu) == 0)
+	{
+		return 1;
+	}
+	if(somestr.compare("lcu"))
+	{
+		return 2;
+	}
+	if(somestr.compare("ls"))
+	{
+		return 3;
+	}
+	if(somestr.compare("lr"))
+	{
+		return 4;
+	}
+	if(somestr.compare("lru"))
+	{
+		return 5;
+	}
+	if(somestr.compare("x"))
+	{
+		return 6;
+	}
+
+
+
+}
+
+void Management::printMenu()
+{
+
+	cout << "*~*~*~*~*~*~*~*~*~*~*~ Welcome to the Server Messenger ~*~*~*~*~*~*~*~*~*~*" << endl;
+	cout << "*                          Choose your command                            *" << endl;
+	cout << "* lu                           -  Print the users list                    *" << endl;
+	cout << "* lcu                          -  Print the connected users list          *" << endl;
+	cout << "* ls                           -  Opened session list                     *" << endl;
+	cout << "* lr                           -  Print chat rooms list                   *" << endl;
+	cout << "* lru <room name>              -  print all users in the given chat room  *" << endl;
+	cout << "* x                            -  Shutdown                                *" << endl;
+	cout << "*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*" << endl;
+
+
+}
+
+
+
+
+} /* namespace npl */

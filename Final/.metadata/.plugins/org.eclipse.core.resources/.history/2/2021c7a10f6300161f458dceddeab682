@@ -1,0 +1,21 @@
+/*
+ * clientTest.h
+ *
+ *  Created on: Aug 15, 2016
+ *      Author: user
+ */
+
+#ifndef CLIENTTEST_H_
+#define CLIENTTEST_H_
+
+namespace npl {
+
+class clientTest {
+public:
+	clientTest();
+	virtual ~clientTest();
+};
+
+} /* namespace npl */
+
+#endif /* CLIENTTEST_H_ */

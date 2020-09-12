@@ -1,0 +1,133 @@
+/*
+ * clientTest.cpp
+ *
+ *  Created on: Aug 15, 2016
+ *      Author: user
+ */
+
+#include "clientTest.h"
+
+namespace npl {
+
+clientTest::clientTest() {
+
+}
+
+clientTest::~clientTest() {
+
+}
+bool clientTest::test()
+{
+	        ClientManager * firstClient = new ClientManager();
+	        ClientManager * secondClient = new ClientManager();
+        	string message = "";
+			string firstName = "Nati";
+	     	string secondName = "Eli";
+			string name = "";
+			string roomName = "yosi";
+			string ip = "127.0.0.1";
+			string password1 = "1234";
+
+			cout<<"Connection of user1: "<<endl;
+			firstClient->connectToServer(ip,5555); // c command
+			sleep(2);
+			cout<<endl<<"****Log in of the user1:**** "<<endl;
+			firstClient->userRegister(firstName, "123", REGISTRATION_REQUEST);
+			sleep(2);
+			firstClient->userLogin(firstName, "123", LOGIN_REQUEST);
+			sleep(2);
+			cout << "Test: l command" << endl;
+			firstClient->printStatus(); // l command
+			sleep(2);
+
+			cout<<endl<<"Connection of user2: "<<endl;
+			secondClient->connectToServer(ip,5555); // c command
+			sleep(2);
+			cout<<endl<<"****Log in of the user1:**** "<<endl;
+			secondClient->userRegister(secondName, "123", REGISTRATION_REQUEST);
+			sleep(2);
+			secondClient->userLogin(secondName, "123", LOGIN_REQUEST);
+			sleep(2);
+			firstClient->printStatus(); // l command
+			sleep(2);
+			cout << "Test: lu command" << endl;
+			firstClient->printUsersList();
+			sleep(2);
+			cout << "Test: lcu command" << endl;
+			firstClient->printConnectedUsers();
+			sleep(2);
+			cout << "Test: lru command (not exisitng room)"<< endl;
+			firstClient->getUsersInSpecificRoom("eliav");
+			sleep(2);
+			cout << "Test: or command" << endl;
+			firstClient->chatRoomCreate(roomName);
+			sleep(2);
+			cout << "Test: lru command (room exisitng but empty)"<< endl;
+			firstClient->getUsersInSpecificRoom(roomName);
+			sleep(2);
+			cout << "Test: er command, entering first client" << endl;
+			firstClient->chatRoomEnter(roomName);
+			sleep(2);
+			cout << "Test: er command, entering second client" << endl;
+			firstClient->chatRoomEnter(roomName);
+			sleep(2);
+			cout << "Test: lru command (two users in the rooms right now)"<< endl;
+			firstClient->getUsersInSpecificRoom("eliav");
+			sleep(2);
+			cout << "Test: cr command (trying to close the room by secondClient that he is not owner" << endl;
+			secondClient->chatRoomDelete(roomName);
+			sleep(2);
+			cout << "Test: cr command (trying to close the room by firstClient that he is the owner" << endl;
+			firstClient->chatRoomDelete(roomName);
+			sleep(2);
+			cout<<endl<<"****user2 joining the room user1 opened:**** "<<endl;
+			client2->openSessionWithChatRoom("myroom");
+			sleep(2);
+			cout<<endl<<"****user2 sending a message:**** "<<endl;
+			client2->send("hello user1!");
+			sleep(2);
+			cout<<endl<<"****user1 sending a message back:**** "<<endl;
+			client1->send("Hi user2!");
+			sleep(1);
+			cout<<endl<<"****List of existing rooms:**** "<<endl;
+			client1->printRooms();
+			sleep(2);
+			cout<<endl<<"****Users that are in the room:**** "<<endl;
+			client1->getUserFromRoom(chatRoomName); // lru command
+			sleep(2);
+			cout<<endl<<"****User2 leaving the room**** "<<endl;
+			client2->exitFromRoom(); // csr command
+			sleep(2);
+			cout<<endl<<"****User1 leaving the room**** "<<endl;
+			client1->exitFromRoom(); // csr command
+			sleep(1);
+			cout<<endl<<"****Users that are in the room:**** "<<endl;
+			client1->getUserFromRoom(chatRoomName); // lru command
+			sleep(2);
+			client1->closeRoom(chatRoomName); // cr command
+			sleep(2);
+
+			cout<<endl<<endl<<"****Testing sending mechanism:****"<<endl;
+			cout<<endl<<"Client 1 opened session with client2."<<endl;
+			client1->open("tomer");
+			sleep(1);
+			client1->send("Hi tomer!");
+			sleep(1);
+			client2->send("Hi valery!");
+			sleep(2);
+			cout<<"Closing session"<<endl;
+			client1->closeActiveSessionWithPeer();
+			sleep(1);
+
+			client1->disconnect(); // d command
+			sleep(2);
+			client2->disconnect(); // d command
+			sleep(2);
+			//messenger->disconnect();
+			delete client1;
+			delete client2;
+			cout<<endl<<"Messenger has been closed"<<endl;
+			return true;
+}
+
+} /* namespace npl */

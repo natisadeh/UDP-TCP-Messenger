@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename resource &apos;TCPMessengerClient/src/TCPMessengerClient.cpp&apos; to &apos;TCPMessengerClientCli.cpp&apos;" description="Rename resource &apos;TCPMessengerClient.cpp&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="src/TCPMessengerClient.cpp" name="TCPMessengerClientCli.cpp" stamp="1459610891194" updateReferences="true"/>
+</session>

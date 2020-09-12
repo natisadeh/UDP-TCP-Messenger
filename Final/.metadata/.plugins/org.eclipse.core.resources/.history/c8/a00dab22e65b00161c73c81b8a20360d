@@ -1,0 +1,58 @@
+/*
+ * Management.cpp
+ *
+ *  Created on: Aug 6, 2016
+ *      Author: user
+ */
+
+#include "Management.h"
+
+namespace npl {
+
+Management::Management() {
+	// TODO Auto-generated constructor stub
+
+}
+
+Management::~Management() {
+	// TODO Auto-generated destructor stub
+}
+
+
+
+int Management::getOrder(string somestr)
+{
+   string lu = "lu";
+	if(somestr.compare(lu))
+	{
+		return 1;
+	}
+	if(somestr.compare("lcu"))
+	{
+		return 2;
+	}
+	if(somestr.compare("ls"))
+	{
+		return 3;
+	}
+	if(somestr.compare("lr"))
+	{
+		return 4;
+	}
+	if(somestr.compare("lru"))
+	{
+		return 5;
+	}
+	if(somestr.compare("x"))
+	{
+		return 6;
+	}
+
+
+
+}
+
+
+
+
+} /* namespace npl */

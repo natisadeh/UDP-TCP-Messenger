@@ -1,0 +1,49 @@
+#ifndef CLIENTMANAGER_H_
+#define CLIENTMANAGER_H_
+
+#include "ClientInterface.h"
+#include "ClientSystem.h"
+#include "Colors.h"
+
+class ClientManager : public ClientSystem {
+
+public:
+	ClientManager();
+
+
+
+	void run(); // enter a loop (getting client commands) after login
+
+	void chatRoomUpdate(); // update the chat rooms
+
+	void requestConnectedUsersList(); // send request of connected users from the server
+	void requestUsersList(); // send request of the list users from file from the server
+	void requestRoomsList(); // send request of room list from the server
+	void requestConnectedUsersInRoom(string roomName); // send request of all users in room from the server
+
+	//manage
+	bool sendMsg(string msg); // sending UDP message to specific user / all the users in room
+	void loginToServer(string username,string password,int cmd); // login to server
+	bool connectToServer(string ip,int port); // connect to the given server ip and port
+	void registerNewUser(string username,string password,int cmd); 	// register a new user
+	bool openSession(string chatSideBName); // open session with the given peer name
+	bool enterChatRoom(string name); // open session in the given room name
+	void addRoomUser(string username, string IP, int port); // add user to the vector of chat room
+	bool deleteChatRoom(string msg); // delete the room by it's name (only the owner of the room can delete it)
+	bool exitRoomOrCloseSession(); // disconnect the open session / exit from a room
+	void exitAll(); // disconnect from the server and exit
+	bool loginToChatRoom(string roomName); // login to room
+
+
+
+
+
+//info
+
+
+
+
+	virtual ~ClientManager();
+};
+
+#endif /* CLIENTMANAGER_H_ */

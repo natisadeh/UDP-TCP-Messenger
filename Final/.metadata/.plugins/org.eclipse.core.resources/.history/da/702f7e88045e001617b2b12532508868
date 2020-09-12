@@ -1,0 +1,403 @@
+#include "ClientManager.h"
+
+ClientManager::ClientManager() {
+	isLogin = false;
+	isSessionActive = false;
+	isRoomActive = false;
+	isConnected = false;
+	serverSocket = NULL;
+	userName.clear();
+}
+
+// enter a loop (getting client commands) after login
+void ClientManager::run()
+{
+	string message;
+	int partnerPort;
+	int command;
+	running = true;
+
+	while (running)
+	{
+		command = serverSocket->readCommand();
+		if (!command)
+			continue;
+		switch(command)
+		{
+			case SESSION_ESTABLISHED:
+				// update the partner details
+				udpPartner.name = serverSocket->readMsg();
+				udpPartner.IP = serverSocket->readMsg();
+				udpPartner.port = serverSocket->readCommand();
+
+				// creating peer to peer connection
+				partnerPort = serverSocket->readCommand();
+				UDPmsgr = new UDPmessenger(partnerPort);
+				isSessionActive = true;
+
+				cout << BOLD(FGRN("You have opened a UDP session with: ")) << udpPartner.name << endl;
+				break;
+
+			case SESSION_REFUSED:
+				message = serverSocket->readMsg();
+				cout << BOLD(FRED("Session denied")) << endl;
+				break;
+
+			case SESSION_CLOSED:
+				udpPartner.Clean();
+				isSessionActive = false;
+				delete(UDPmsgr);
+				cout << BOLD(FMAG("Closing session")) << endl;
+				break;
+
+			case CHAT_ROOM_CREATE:
+				cout << BOLD(FGRN("A new chat room has been created")) << endl;
+				break;
+
+			case CHAT_ROOM_CREATE_DENIED:
+				message = serverSocket->readMsg();
+				cout << BOLD(FRED("Room can't be opened")) << endl;
+				break;
+
+			case CHAT_ROOM_USER_JOIN:
+				partnerPort = serverSocket->readCommand();
+				UDPmsgr = new UDPmessenger(partnerPort);
+				isRoomActive = true;
+				cout << BOLD(FBLU("You have joined the chat room")) << endl;
+				break;
+
+			case CHAT_ROOM_USER_LEFT:
+				sendMsg (BOLD(FBLU("has left the chat room")));
+				chatRoomLeft();
+				cout<<BOLD(FBLU("You have left the room"))<<endl;
+				break;
+
+			case CHAT_ROOM_UPDATE:
+				chatRoomUpdate();
+				break;
+
+			case CHAT_ROOM_CLOSE:
+				cout<<BOLD(FRED("Closing chat room"))<<endl;
+				break;
+
+			case CHAT_ROOM_CLOSE_DENIED:
+				cout<<BOLD(FRED("You have no permission to close the room"))<<endl;
+				break;
+
+			case LIST_USERS:
+				printUsersList();
+
+			case LIST_CONNECTED_USERS:
+				printConnectedUsers();
+				break;
+
+			case LIST_ROOMS:
+				printRoomsList();
+				break;
+
+			case LIST_CONNECTED_USERS_IN_ROOM:
+				printConnectedUsers();
+				break;
+		}
+	}
+}
+
+// connect to the given server ip and port
+bool ClientManager::connectToServer(string ip, int port)
+{
+	if(serverSocket != NULL)
+		return false;
+	serverSocket = new TCPSocket(ip,port);
+	isConnected = true;
+	return true;
+}
+
+// register a new user
+void ClientManager::registerNewUser(string username,string password,int cmd)
+{
+	if (isLogin)
+	{
+		cout << BOLD(FRED("You are already logged in to the server!")) << endl;
+		return;
+	}
+
+	int response;
+	if(serverSocket)
+	{
+		serverSocket->writeCommand(cmd);
+		serverSocket->writeMsg(username);
+		serverSocket->writeMsg(password);
+		response = serverSocket->readCommand();
+
+		if (response == REGISTRATION_REQUEST_APPROVED)
+		{
+			cout<<BOLD(FGRN("Registration successfully with the user: "))<<username<<endl;
+		}
+		else if(response==REGISTRATION_REQUEST_DENIED)
+		{
+			cout<<BOLD(FRED("Registration has failed, username is already taken"))<<endl;
+		}
+	}
+	else
+	{
+		cout<<BOLD(FRED("You have to connect the server before register"))<<endl;
+	}
+}
+
+// login to server
+void ClientManager::loginToServer(string username,string password,int cmd)
+{
+	if (isLogin)
+	{
+		cout<<"Login failed, You are already logged in"<<endl;
+		return;
+	}
+
+	int response;
+	if(serverSocket)
+	{
+		serverSocket->writeCommand(cmd); // case LOGIN_REQUEST in login class
+		serverSocket->writeMsg(username);
+		serverSocket->writeMsg(password);
+		response = serverSocket->readCommand();
+
+		if(response == LOGIN_REQUEST_APPROVED)
+		{
+			userName = username;
+			isLogin = true;
+			start();
+			cout << BOLD(FGRN("You are logged in as ")) << username << endl;
+		}
+		else if(response == LOGIN_REQUEST_DENIED)
+		{
+			cout<<"Login request denied"<<endl;
+		}
+	}
+	else
+	{
+		cout<<"The server is not connected"<<endl;
+	}
+}
+
+// open session with the given peer name
+bool ClientManager::openSession(string partnerName)
+{
+	if (!serverSocket){
+		cout<<"You are not connected"<<endl;
+		return false;
+	}
+
+	if (!isLogin){
+		cout<<"You are not logged in"<<endl;
+				return false;
+	}
+
+	if (isInChat())
+	{
+		cout << "You are already in an open session" << endl;
+		return false;
+	}
+	if (partnerName == userName)
+	{
+		cout<<"Session can't be opened with yourself"<<endl;
+		return false;
+	}
+	serverSocket->writeCommand(SESSION_CREATE);
+	serverSocket->writeMsg(partnerName);
+
+	return true;
+}
+
+// print the current status of the user
+
+
+// sending UDP message to specific user / all the users in room
+bool ClientManager::sendMsg(string msg)
+{
+	if(isSessionActive)
+	{
+		UDPmsgr->send( string(">[")+userName+string("]") + msg,udpPartner.IP,udpPartner.port);
+		return true;
+	}
+	else if (isRoomActive)
+	{
+		std::vector<Partner*>::iterator iter = chatUsers.begin();
+		std::vector<Partner*>::iterator enditer = chatUsers.end();
+
+		while (iter != enditer)
+		{
+			UDPmsgr->send(string(">[")+userName+string("] ") + msg,(*iter)->IP,(*iter)->port);
+			iter++;
+		}
+		return true;
+	}
+	return false;
+}
+
+// open session in the given room name
+bool ClientManager::enterChatRoom(string roomName)
+{
+	if(isRoomActive)
+	{
+		cout<< "You are already in chat room"<<endl;
+		return true;
+	}
+
+		if(!serverSocket || !isLogin || isInChat())
+			return false;
+
+		serverSocket->writeCommand(CHAT_ROOM_CREATE);
+		serverSocket->writeMsg(roomName);
+		serverSocket->writeCommand(CHAT_ROOM_USER_JOIN);
+		serverSocket->writeMsg(roomName);
+	return true;
+
+}
+
+// login to room
+bool ClientManager::loginToChatRoom(string roomName)
+{
+	if(!serverSocket || !isLogin || isInChat())
+		return false;
+	serverSocket->writeCommand(CHAT_ROOM_USER_JOIN);
+	serverSocket->writeMsg(roomName);
+	return true;
+}
+
+// send request of connected users from the server
+void ClientManager::requestConnectedUsersList()
+{
+	if (!serverSocket || !isLogin)
+	{
+		cout << "You are not connected or not logged in"<<endl;
+		return;
+	}
+	serverSocket->writeCommand(LIST_CONNECTED_USERS);
+}
+
+// print the connected users list after getting from the server
+
+
+// send request of the list users from file from the server
+void ClientManager::requestUsersList()
+{
+	if (!serverSocket || !isLogin)
+	{
+		cout << "You are not connected or not logged in"<<endl;
+		return;
+	}
+	serverSocket->writeCommand(LIST_USERS);
+}
+
+// print the list of the users from the file
+
+
+// send request of room list from the server
+void ClientManager::requestRoomsList()
+{
+	if (!serverSocket || !isLogin)
+	{
+		cout<<"You are not connected or not logged in"<<endl;
+		return;
+	}
+	serverSocket->writeCommand(LIST_ROOMS);
+}
+
+// send request of all users in room from the server
+void ClientManager::requestConnectedUsersInRoom(string roomName)
+{
+	if (!serverSocket || !isLogin)
+	{
+		cout<<"You are not connected or not logged in"<<endl;
+		return;
+	}
+	serverSocket->writeCommand(LIST_CONNECTED_USERS_IN_ROOM);
+	serverSocket->writeMsg(roomName);
+}
+
+// delete the room by it's name (only the owner of the room can delete it)
+bool ClientManager::deleteChatRoom(string name)
+{
+	if (!serverSocket || !isLogin)
+	{
+		cout<<"You are not connected or not logged in"<<endl;
+		return false;
+	}
+	serverSocket->writeCommand(CHAT_ROOM_CLOSE);
+	serverSocket->writeMsg(name);
+	return true;
+}
+
+// disconnect the open session / exit from a room
+bool ClientManager::exitRoomOrCloseSession()
+{
+	if (isRoomActive)
+	{
+		serverSocket->writeCommand(CHAT_ROOM_USER_LEFT);
+	}
+	else if (isSessionActive)
+	{
+		serverSocket->writeCommand(SESSION_CLOSED);
+	}
+	else
+	{
+		return false;
+	}
+
+	return true;
+
+}
+
+// add user to the vector of chat room
+void ClientManager::addRoomUser(string roomate, string IP, int port)
+{
+	Partner *temp= new Partner();
+	temp->name =roomate;
+	temp->IP = IP;
+	temp->port = port;
+	chatUsers.push_back(temp);
+}
+
+// update the user details after leaving a room
+
+
+// return true if the user is in a session, false otherwise
+
+// return the current status of the connection
+
+
+// disconnect from the server and exit
+void ClientManager::exitAll()
+{
+	exitRoomOrCloseSession();
+	serverSocket->writeCommand(EXIT);
+	userName.clear();
+	running = false;
+	isLogin = false;
+	isConnected = false;
+	serverSocket = NULL;
+}
+
+// print list of all chat rooms
+
+
+// update the chat rooms according to the given information by the server
+void ClientManager::chatRoomUpdate()
+{
+	isRoomActive = true;
+	clearPartnersVector();
+	roomName = serverSocket->readMsg();
+	int membersCounter = serverSocket->readCommand();
+	for (int i = 0 ; i< membersCounter;i++)
+	{
+		string user = serverSocket->readMsg();
+		string ip = serverSocket->readMsg();
+		int port = serverSocket->readCommand();
+		addRoomUser(user,ip,port);
+	}
+	cout << BOLD(FBLU("User has entered the chat room")) << endl;
+}
+
+ClientManager::~ClientManager() {
+	running = false;
+}

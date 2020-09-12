@@ -1,0 +1,28 @@
+/*
+ * Management.h
+ *
+ *  Created on: Aug 6, 2016
+ *      Author: user
+ */
+
+#ifndef MANAGEMENT_H_
+#define MANAGEMENT_H_
+
+#include "ServerManager.h"
+#include <cstring>
+
+namespace npl {
+
+class Management {
+public:
+	Management();
+	virtual ~Management();
+
+
+
+	int getOrder(string somestr);
+};
+
+} /* namespace npl */
+
+#endif /* MANAGEMENT_H_ */

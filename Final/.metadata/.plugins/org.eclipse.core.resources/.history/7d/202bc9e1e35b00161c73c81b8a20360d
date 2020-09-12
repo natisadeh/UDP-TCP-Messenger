@@ -1,0 +1,94 @@
+//============================================================================
+// Name        : MSA.cpp
+// Author      : 
+// Version     :
+// Copyright   : Your copyright notice
+// Description : Hello World in C++, Ansi-style
+//============================================================================
+
+#include <iostream>
+#include "ServerManager.h"
+#include "Login.h"
+
+#include "Management.h"
+using namespace std;
+
+int main() {
+
+	ServerManager serverManager;
+	Login registration(&serverManager);
+	Connection connection(&registration);
+
+	bool running=true;
+
+	cout << "*~*~*~*~*~*~*~*~*~*~*~ Welcome to the Server Messenger ~*~*~*~*~*~*~*~*~*~*" << endl;
+	cout << "*                          Choose your command                            *" << endl;
+	cout << "* lu                           -  Print the users list                    *" << endl;
+	cout << "* lcu                          -  Print the connected users list          *" << endl;
+	cout << "* ls                           -  Opened session list                     *" << endl;
+	cout << "* lr                           -  Print chat rooms list                   *" << endl;
+	cout << "* lru <room name>              -  print all users in the given chat room  *" << endl;
+	cout << "* x                            -  Shutdown                                *" << endl;
+	cout << "*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*" << endl;
+
+			while (running==true)
+				{
+				string command, chatRoom;
+				cin >> command;
+                Management m;
+
+                switch (m.getOrder(command))
+                {
+                case 1:
+                	serverManager.getListUsers();
+
+                }
+
+			//	if (command == "lu")
+				//{
+					//serverManager.getListUsers();
+				//}
+				//else
+				{
+					if (command == "lcu")
+					{
+						serverManager.getListConnectedUsers();
+					}
+					else
+					{
+						if (command == "ls")
+						{
+							serverManager.getListSessions();
+						}
+						else
+						{
+							if (command == "lr")
+							{
+								serverManager.getListRooms();
+							}
+							else
+							{
+								if (command == "lru")
+								{
+									cin>>chatRoom;
+									serverManager.getListChatUsers(chatRoom);
+
+								}
+								else {
+									if (command =="x")
+									{
+										cout<<"The Messenger is shutting down"<<endl;
+										running = false;
+
+									}
+									else
+									{
+										cout << "Wrong input" << endl;
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+}

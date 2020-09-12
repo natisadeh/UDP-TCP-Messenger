@@ -1,0 +1,21 @@
+/*
+ * Management.cpp
+ *
+ *  Created on: Aug 6, 2016
+ *      Author: user
+ */
+
+#include "Management.h"
+
+namespace npl {
+
+Management::Management() {
+	// TODO Auto-generated constructor stub
+
+}
+
+Management::~Management() {
+	// TODO Auto-generated destructor stub
+}
+
+} /* namespace npl */

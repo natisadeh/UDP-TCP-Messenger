@@ -1,0 +1,6 @@
+00:36:01 **** Incremental Build of configuration Debug for project TCPMessengerServer ****
+make all 
+make: Nothing to be done for `all'.
+
+00:36:02 Build Finished (took 249ms)
+

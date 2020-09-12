@@ -1,0 +1,146 @@
+//============================================================================
+// Name        : MCA.cpp
+// Author      : 
+// Version     :
+// Copyright   : Your copyright notice
+// Description : Hello World in C++, Ansi-style
+//============================================================================
+
+#include <iostream>
+
+#include "ClientManager.h"
+
+using namespace std;
+
+int main() {
+	        cout << "*~*~*~*~*~*~*~*~*~*~*~*~*~ Welcome to the client Messenger ~*~*~*~*~*~*~*~*~*~*~*~*" << endl;
+			cout << "*                              Choose your command                                *" << endl;
+			cout << "* c <server IP>                  -  Connect to the server                         *" << endl;
+			cout << "* register <username> <password> -  Register a new user                           *" <<  endl;
+			cout << "* login <username> <password>    -  Login                                         *" << endl;
+			cout << "* o <username>                   -  Open a session with a user                    *" << endl;
+			cout << "* lu                             -  Print the users list                          *" << endl;
+			cout << "* lcu                            -  Print the connected users list                *" << endl;
+			cout << "* or <room name>                 -  Enter a chat room                             *" << endl;
+			cout << "* cr <room name>                 -  Close the chat room                           *" << endl;
+			cout << "* lr                             -  Print chat rooms list                         *" << endl;
+			cout << "* lru <room name>                -  print all users in the given chat room        *" << endl;
+			cout << "* s <message>                    -  Send a message                                *" << endl;
+			cout << "* cs                             -  Close current session or exit the chat room   *" << endl;
+			cout << "* l                              -  Print the current status of the client        *" << endl;
+			cout << "* d                              -  Disconnect                                    *" << endl;
+			cout << "* x                              -  Shutdown                                      *" << endl;
+			cout << "*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*" << endl;
+
+	ClientManager clientManager;
+	bool running = true;
+
+	while(running)
+	{
+		string command, input1, input2;
+		cin >> command;
+
+		if(command == "c")
+		{
+			cin >> input1;
+			if(clientManager.connectToServer(input1,MSNGR_PORT))
+				cout << "Connected successfully to: " << input1 << endl;
+			else
+				cout<<"Connection failed"<<endl;
+		}
+
+		else if(command=="register")
+		{
+			cin >> input1;
+			cin >> input2;
+			clientManager.registerNewUser(input1,input2,REGISTRATION_REQUEST);
+		}
+
+		else if(command=="login")
+		{
+			cin >> input1;
+			cin >> input2;
+			clientManager.loginToServer(input1,input2,LOGIN_REQUEST);
+		}
+
+		else if(command == "o")
+		{
+			cin >> input1;
+			clientManager.openSession(input1);
+		}
+
+		else if(command == "lu")
+		{
+			clientManager.requestUsersList();
+		}
+
+		else if(command == "lcu")
+		{
+			clientManager.requestConnectedUsersList();
+		}
+
+		else if(command == "or")
+		{
+			cin >> input1; // getting room name
+			clientManager.enterChatRoom(input1);
+		}
+
+		else if(command == "cr") // close a room
+		{
+			cin >> input1; // getting room name
+			clientManager.deleteChatRoom(input1);
+		}
+
+		else if(command == "lr")
+		{
+			clientManager.requestRoomsList();
+		}
+
+		else if(command == "lru")
+		{
+			cin >> input1; // getting room name
+			clientManager.requestConnectedUsersInRoom(input1);
+		}
+
+		else if(command == "s")
+		{
+			getline(std::cin,input1); // getting message to sent
+			if(!clientManager.sendMsg(input1))
+				cout<<"The message can't be sent - please open a new session or login to a room first"<<endl;
+		}
+
+		else if(command == "cs")
+		{
+			if(!clientManager.exitRoomOrCloseSession())
+				cout << "There is no session or room to disconnect from" << endl;
+		}
+
+		else if(command == "l")
+		{
+			clientManager.printCurrentStatus(); // print the current user status
+		}
+
+		else if(command == "d")
+		{
+			if (clientManager.isConnectedToServer())
+			{
+				clientManager.exitAll();
+				cout << "You have logged out from the server" << endl;
+			}
+		}
+		else if(command == "x")
+		{
+
+			if (clientManager.isConnectedToServer())
+			{
+				clientManager.exitAll();
+			}
+			cout<<"The Messenger is shutting down"<<endl;
+			running=false;
+		}
+		else
+		{
+			cout << "Wrong input" << endl;
+		}
+	}
+}

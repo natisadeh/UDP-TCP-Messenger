@@ -1,0 +1,36 @@
+/*
+ * ClientSystem.h
+ *
+ *  Created on: Aug 8, 2016
+ *      Author: user
+ */
+
+#ifndef CLIENTSYSTEM_H_
+#define CLIENTSYSTEM_H_
+
+#include "ClientInterface.h"
+
+namespace npl {
+
+class ClientSystem: public ClientInterface {
+public:
+	ClientSystem();
+	virtual ~ClientSystem();
+
+
+
+	virtual void clearPartnersVector(); // clear the vector of partners in the chat room
+	virtual bool isInChat(); // return true if the user is in a session, false otherwise
+	virtual bool isConnectedToServer() const; // return the current status of the connection
+	virtual void chatRoomLeft(); // update the user details after leaving a room
+	virtual	void printConnectedUsers(); // print all of the connected users from the server
+	virtual	void printCurrentStatus(); // print the current status of the user
+	virtual	void printUsersList(); // print the list of the users from the file
+	virtual	void printRoomsList(); // print list of all chat rooms
+
+
+};
+
+} /* namespace npl */
+
+#endif /* CLIENTSYSTEM_H_ */

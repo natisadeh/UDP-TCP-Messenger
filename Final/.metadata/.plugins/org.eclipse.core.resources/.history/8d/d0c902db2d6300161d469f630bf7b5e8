@@ -1,0 +1,110 @@
+/*
+ * clientTest.cpp
+ *
+ *  Created on: Aug 15, 2016
+ *      Author: user
+ */
+
+#include "clientTest.h"
+
+namespace npl {
+
+clientTest::clientTest() {
+
+}
+
+clientTest::~clientTest() {
+
+}
+bool clientTest::test()
+{
+
+	        ClientManager firstClient;
+	        ClientManager secondClient;
+
+			string firstName = "ee";
+	     	string secondName = "dd";
+
+			string roomName = "yosi";
+			string ip = "127.0.0.1";
+
+
+			cout << "Test: c command (first client) "<<endl;
+			firstClient.connectToServer(ip,MSNGR_PORT);
+			sleep(2);
+
+//			firstClient.userRegister(firstName, "123", REGISTRATION_REQUEST);
+//			sleep(2);
+
+			cout << "Test: login command (first client) "<<endl;
+			firstClient.userLogin(firstName, "123", LOGIN_REQUEST);
+			sleep(2);
+
+			cout << "Test: c command (second client) "<<endl;
+			secondClient.connectToServer(ip,MSNGR_PORT);
+			sleep(2);
+
+//			secondClient.userRegister(secondName, "123", REGISTRATION_REQUEST);
+//			sleep(2);
+			cout << "Test: login command (second client) "<<endl;
+			secondClient.userLogin(secondName, "123", LOGIN_REQUEST);
+			sleep(2);
+
+			cout << "Test: or command (firstClient creating a room)" << endl;
+			firstClient.chatRoomCreate(roomName);
+			sleep(2);
+
+			cout << "Test: er command (entering first client)" << endl;
+			firstClient.chatRoomEnter(roomName);
+			sleep(2);
+
+			cout << "Test: er command (entering second client)" << endl;
+			secondClient.chatRoomEnter(roomName);
+			sleep(2);
+
+			cout << "Test: sending message between the clients (first user sending to the second)" << endl;
+			firstClient.sendMsg("Hi i'm the first client!");
+			sleep(2);
+
+
+			cout << endl << "Test: sending message between the clients (second user sending to the first)" << endl;
+			firstClient.sendMsg("Hi i'm the second client!");
+			sleep(2);
+
+			cout << "Test: cs command (second client leaving the room)" << endl;
+			secondClient.leaveRoomOrCloseSession();
+			sleep(2);
+			cout << "Test: cr command (trying to close the room by firstClient that he is the owner)" << endl;
+			firstClient.chatRoomDelete(roomName);
+			sleep(2);
+
+
+			cout<<"Test o command (first client open session with second client)"<<endl;
+			firstClient.peersSession(secondName);
+			sleep(2);
+
+			cout << "Test s command (send udp messages between the clients)" << endl;
+			firstClient.sendMsg("(UDP) Hi i'm the first client!");
+			sleep(2);
+
+			cout << "Test s command (send udp messages between the clients)" << endl;
+			secondClient.sendMsg("(UDP) Hi i'm the second client!");
+			sleep(2);
+
+			cout << "Test: cs command (closing the UDP session)"<< endl;
+			firstClient.leaveRoomOrCloseSession();
+			sleep(2);
+
+			cout << "Test: d command (disconnect first user from the server)" << endl;
+			firstClient.disconnect();
+			sleep(2);
+
+			cout << "Test: d command (disconnect first user from the server)" << endl;
+			secondClient.disconnect();
+		    sleep(2);
+
+			cout<<endl<<"App closed"<<endl;
+			return true;
+}
+
+} /* namespace npl */

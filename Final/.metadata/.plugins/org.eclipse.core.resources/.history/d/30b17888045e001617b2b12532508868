@@ -1,0 +1,125 @@
+/*
+ * ClientInfo.cpp
+ *
+ *  Created on: Aug 8, 2016
+ *      Author: user
+ */
+
+#include "ClientInfo.h"
+
+namespace npl {
+
+ClientInfo::ClientInfo() {
+	// TODO Auto-generated constructor stub
+
+}
+
+ClientInfo::~ClientInfo() {
+	// TODO Auto-generated destructor stub
+}
+
+} /* namespace npl */
+
+
+
+
+void ClientInfo::clearPartnersVector()
+{
+	std::vector<Partner*>::iterator iter = chatUsers.begin();
+	std::vector<Partner*>::iterator enditer = chatUsers.end();
+
+	while (iter != enditer)
+	{
+		delete(*iter);
+		iter++;
+	}
+	chatUsers.clear();
+}
+
+bool ClientInfo::isInChat()
+{
+	return isRoomActive || isSessionActive;
+}
+
+bool ClientInfo::isConnectedToServer() const {
+	return isConnected;
+}
+
+void ClientInfo::chatRoomLeft()
+{
+	isRoomActive = false;
+	clearPartnersVector();
+	delete(UDPmsgr);
+}
+
+//prev
+
+
+void ClientInfo::printConnectedUsers()
+{
+	int i;
+	int numOfUsers;
+	numOfUsers = serverSocket->readCommand();
+	for(i=0 ; i<numOfUsers ; i++)
+	{
+		cout << " user: " << serverSocket->readMsg() << endl;
+	}
+	if(i == 0)
+	{
+		cout << "There are no connected users" << endl;
+	}
+}
+
+
+
+void ClientInfo::printCurrentStatus()
+{
+	if (serverSocket)
+		cout<< "Connected to server "<<endl;
+	else
+		cout<< "NOT Connected to server "<<endl;
+	if (isLogin)
+		cout<< "Logged in as "<< userName<<endl;
+	else
+		cout<< "NOT logged in "<<endl;
+	if (isSessionActive)
+		cout<< "In session "<<endl;
+	else
+		cout<< "NOT in session "<<endl;
+	if (isRoomActive)
+		cout<< "In chat room "<< roomName <<endl;
+	else
+		cout<< "NOT In chat room "<<endl;
+}
+
+void ClientInfo::printRoomsList()
+{
+	int numOfRooms;
+	numOfRooms = serverSocket->readCommand();
+
+	if(numOfRooms > 0)
+	{
+		cout << "Rooms: "<<endl;
+		for(int i = 0 ; i<numOfRooms;i++)
+		{
+			cout << "Room name: " << serverSocket->readMsg() << endl;
+		}
+	}
+	else
+		cout << "There are no opened rooms" << endl;
+}
+
+
+
+void ClientInfo::printUsersList()
+{
+	int i;
+	int numOfUsers;
+	numOfUsers = serverSocket->readCommand();
+	cout << "Users list:" <<endl;
+	for(i=0 ; i<numOfUsers ; i++)
+	{
+		cout << serverSocket->readMsg() << endl;
+	}
+}
+
